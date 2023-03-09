@@ -7,10 +7,6 @@ LABEL com.github.containers.toolbox="true" \
       summary="Base image for creating Ubuntu toolbox containers" \
       maintainer="Ievgen Popovych <jmennius@gmail.com>"
 
-# Remove apt configuration optimized for containers
-# Remove docker-gzip-indexes to help with "command-not-found"
-RUN rm /etc/apt/apt.conf.d/docker-gzip-indexes /etc/apt/apt.conf.d/docker-no-languages
-
 # Enable myhostname nss plugin for clean hostname resolution without patching
 # hosts (at least for sudo), add it right after 'files' entry. We expect that
 # this entry is not present yet. Do this early so that package postinst (which
@@ -33,6 +29,9 @@ RUN sed -Ei '/apt-get (update|upgrade)/s/^/#/' /usr/local/sbin/unminimize && \
     install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
     sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list' && \
     rm -f packages.microsoft.gpg && \
+    wget https://github.com/sigstore/cosign/releases/download/v2.0.0/cosign_2.0.0_amd64.deb -O /root/cosign.deb && \
+    dpkg -i /root/cosign.deb && \
+    rm -f /root/cosign.deb && \
     DEBIAN_FRONTEND=noninteractive apt -y install apt-transport-https && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y code && \
@@ -40,11 +39,10 @@ RUN sed -Ei '/apt-get (update|upgrade)/s/^/#/' /usr/local/sbin/unminimize && \
 RUN rm /extra-packages
 
 # Fix empty bind-mount to clear selinuxfs (see #337)
-RUN mkdir /usr/share/empty
+# RUN mkdir /usr/share/empty
 
 # Add flatpak-spawn to /usr/bin
-RUN ln -s /usr/libexec/flatpak-xdg-utils/flatpak-spawn /usr/bin/ && \
-    ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/docker && \
-      ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/flatpak && \ 
-      ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/podman && \
-      ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/rpm-ostree
+RUN ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/docker && \
+    ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/flatpak && \ 
+    ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/podman && \
+    ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/rpm-ostree

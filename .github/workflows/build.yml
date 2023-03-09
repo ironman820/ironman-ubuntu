@@ -15,7 +15,7 @@ on:
       - '**.md'
       - '**.txt'
 env:
-  IMAGE_BASE_NAME: ironman-ublue
+  IMAGE_BASE_NAME: ironman-ubuntu
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
