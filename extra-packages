@@ -1,0 +1,16 @@
+git
+keyutils
+gnupg2
+tree
+unzip
+zip
+curl
+flatpak-xdg-utils
+btop
+cosign
+ffmpeg
+duf
+bat
+exa
+python3
+ripgrep
