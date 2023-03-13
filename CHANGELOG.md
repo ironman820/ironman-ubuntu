@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/ironman820/ironman-ubuntu/compare/v1.0.0...v1.1.0) (2023-03-13)
+
+
+### Features
+
+* :sparkles: Installed Starship and remove gpg in favor of host version ([afdd47a](https://github.com/ironman820/ironman-ubuntu/commit/afdd47ac1aa294540e7a3de1694917079f54f25b))
+
 ## 1.0.0 (2023-03-10)
 
 
