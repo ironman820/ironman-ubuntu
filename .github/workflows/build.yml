@@ -67,7 +67,7 @@ jobs:
               COMMIT_TAGS+=("${SHA_SHORT}")
           fi
 
-          if [[ "${{ github.ref_name }}" == "devel "]]; then
+          if [[ "${{ github.ref_name }}" == "devel" ]]; then
             BUILD_TAGS=("${MAJOR_VERSION}.${MINOR_VERSION}-${TIMESTAMP}" "devel")
           else
             BUILD_TAGS=("${MAJOR_VERSION}.${MINOR_VERSION}" "${MAJOR_VERSION}.${MINOR_VERSION}-${TIMESTAMP}")
