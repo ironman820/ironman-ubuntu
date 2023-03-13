@@ -18,9 +18,9 @@ RUN sed -Ei 's/^(hosts:.*)(\<files\>)\s*(.*)/\1\2 myhostname \3/' /etc/nsswitch.
 # Install extra packages as well as libnss-myhostname
 COPY extra-packages /
 RUN sed -Ei '/apt-get (update|upgrade)/s/^/#/' /usr/local/sbin/unminimize && \
-    apt-get update && \
+    apt update && \
     yes | /usr/local/sbin/unminimize && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install \
+    DEBIAN_FRONTEND=noninteractive apt -y install \
         ubuntu-minimal ubuntu-standard \
         libnss-myhostname \
         wget gpg \
@@ -32,9 +32,12 @@ RUN sed -Ei '/apt-get (update|upgrade)/s/^/#/' /usr/local/sbin/unminimize && \
     wget https://github.com/sigstore/cosign/releases/download/v2.0.0/cosign_2.0.0_amd64.deb -O /root/cosign.deb && \
     dpkg -i /root/cosign.deb && \
     rm -f /root/cosign.deb && \
+    DEBIAN_FRONTEND=noninteractive apt -y remove gpg && \
     DEBIAN_FRONTEND=noninteractive apt -y install apt-transport-https && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y code && \
+    curl -sS https://starship.rs/install.sh | sh -s -- -f && \
+    DEBIAN_FRONTEND=noninteractive apt-get clean && \
     rm -rd /var/lib/apt/lists/*
 RUN rm /extra-packages
 
@@ -45,4 +48,5 @@ RUN rm /extra-packages
 RUN ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/docker && \
     ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/flatpak && \ 
     ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/podman && \
-    ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/rpm-ostree
+    ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/rpm-ostree && \
+    ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/gpg
