@@ -68,7 +68,7 @@ jobs:
           fi
 
           if [[ "${{ github.ref_name }}" == "devel" ]]; then
-            BUILD_TAGS=("${MAJOR_VERSION}.${MINOR_VERSION}-${TIMESTAMP}" "devel")
+            BUILD_TAGS=("devel")
           else
             BUILD_TAGS=("${MAJOR_VERSION}.${MINOR_VERSION}" "${MAJOR_VERSION}.${MINOR_VERSION}-${TIMESTAMP}")
 
@@ -119,7 +119,6 @@ jobs:
             ${{ steps.generate-tags.outputs.alias_tags }}
           build-args: |
             IMAGE_NAME=${{ matrix.image_name }}
-            FEDORA_MAJOR_VERSION=${{ matrix.major_version }}
           labels: ${{ steps.meta.outputs.labels }}
           oci: false
 
