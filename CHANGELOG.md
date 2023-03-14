@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/ironman820/ironman-ubuntu/compare/v1.1.0...v1.2.0) (2023-03-14)
+
+
+### Features
+
+* :sparkles: Install restic and link to host vim ([8962b79](https://github.com/ironman820/ironman-ubuntu/commit/8962b79769bdeb7fa8681da939748f3f528494b2))
+
 ## [1.1.0](https://github.com/ironman820/ironman-ubuntu/compare/v1.0.0...v1.1.0) (2023-03-13)
 
 
