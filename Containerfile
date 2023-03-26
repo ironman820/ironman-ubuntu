@@ -46,8 +46,12 @@ RUN apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y code && \
     curl -sS https://starship.rs/install.sh | sh -s -- -f && \
     curl -L "https://github.com/1player/host-spawn/releases/download/${host_spawn_version}/host-spawn-$(uname -m)" -o /usr/bin/host-spawn && \
-    chmod +x /usr/bin/host-spawn && \
-    DEBIAN_FRONTEND=noninteractive apt-get clean && \
+    chmod +x /usr/bin/host-spawn
+ENV fastfetch_version="1.11.0"
+RUN curl -fsL "https://github.com/LinusDierheimer/fastfetch/releases/download/${fastfetch_version}/fastfetch-${fastfetch_version}-Linux.deb" -o /fastfetch.deb && \
+    dpkg -i /fastfetch.deb && \
+    rm -f /fastfetch.deb
+RUN DEBIAN_FRONTEND=noninteractive apt-get clean && \
     rm -rd /var/lib/apt/lists/*
 RUN rm /extra-packages
 
@@ -55,7 +59,8 @@ RUN rm /extra-packages
 # RUN mkdir /usr/share/empty
 
 # Add flatpak-spawn to /usr/bin
-RUN ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/docker && \
+RUN ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/distrobox && \
+    ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/docker && \
     ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/flatpak && \ 
     ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/podman && \
     ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/rpm-ostree && \
