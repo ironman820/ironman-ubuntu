@@ -20,11 +20,11 @@ RUN sed -Ei 's/^(hosts:.*)(\<files\>)\s*(.*)/\1\2 myhostname \3/' /etc/nsswitch.
 # Install extra packages as well as libnss-myhostname
 COPY extra-packages /
 ENV host_spawn_version="1.2.1" \ LANG=en_US.UTF-8 \ LANGUAGE=en_US:en \ LC_ALL=en_US.UTF-8
-# RUN sed -Ei '/apt-get (update|upgrade)/s/^/#/' /usr/local/sbin/unminimize && \
-#     apt update && \
-#     yes | /usr/local/sbin/unminimize && \
-RUN apt update && \
-    apt upgrade -y && \
+RUN sed -Ei '/apt-get (update|upgrade)/s/^/#/' /usr/local/sbin/unminimize && \
+    apt update && \
+    yes | /usr/local/sbin/unminimize && \
+# RUN apt update && \
+#     apt upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt -y install \
         ubuntu-minimal ubuntu-standard \
         libnss-myhostname \
@@ -32,7 +32,7 @@ RUN apt update && \
     sed 's/# \(en_US.UTF-8 .*\)/\1/' -i /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     DEBIAN_FRONTEND=noninteractive apt -y install \
-        $(cat extra-packages | xargs) && \
+        $(grep -v '^#' /extra-packages | xargs) && \
     wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && \
     install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
     sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list' && \
@@ -51,6 +51,12 @@ ENV fastfetch_version="1.11.0"
 RUN curl -fsL "https://github.com/LinusDierheimer/fastfetch/releases/download/${fastfetch_version}/fastfetch-${fastfetch_version}-Linux.deb" -o /fastfetch.deb && \
     dpkg -i /fastfetch.deb && \
     rm -f /fastfetch.deb
+ENV glocom_version="6.7.2"
+RUN curl -fsL "https://downloads.bicomsystems.com/desktop/glocom/public/${glocom_version}/glocom/gloCOM-${glocom_version}.deb" -o /glocom.deb && \
+    dpkg -i /glocom.deb && \
+    rm -f /glocom.deb
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    DEBIAN_FRONTEND=noninteractive apt install -y nodejs
 RUN DEBIAN_FRONTEND=noninteractive apt-get clean && \
     rm -rd /var/lib/apt/lists/*
 RUN rm /extra-packages
@@ -63,5 +69,4 @@ RUN ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/distrobox && \
     ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/docker && \
     ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/flatpak && \ 
     ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/podman && \
-    ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/rpm-ostree && \
-    ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/vim
+    ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/rpm-ostree

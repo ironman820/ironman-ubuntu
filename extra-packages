@@ -8,9 +8,14 @@ git
 glances
 gnupg2
 keyutils
+# libpulse for gloCOM
+libpulse-mainloop-glib0
 pcscd
 python3
+# QtWayland for gloCOM
+qtwayland5
 ripgrep
 tree
 unzip
+vim
 zip
