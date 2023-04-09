@@ -70,11 +70,10 @@ jobs:
           if [[ "${{ github.ref_name }}" == "devel" ]]; then
             BUILD_TAGS=("devel")
           else
-            BUILD_TAGS=("${MAJOR_VERSION}.${MINOR_VERSION}" "${MAJOR_VERSION}.${MINOR_VERSION}-${TIMESTAMP}")
+            BUILD_TAGS=("${MAJOR_VERSION}.${MINOR_VERSION}")
 
             if [[ "${{ matrix.is_latest_version }}" == "true" ]] && \
               [[ "${{ matrix.is_stable_version }}" == "true" ]]; then
-                BUILD_TAGS+=("${TIMESTAMP}")
                 BUILD_TAGS+=("latest")
             fi
           fi
