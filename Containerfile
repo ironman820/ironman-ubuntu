@@ -18,48 +18,75 @@ RUN sed -Ei 's/^(hosts:.*)(\<files\>)\s*(.*)/\1\2 myhostname \3/' /etc/nsswitch.
 # Restore documentation but do not upgrade all packages
 # Install ubuntu-minimal & ubuntu-standard
 # Install extra packages as well as libnss-myhostname
-COPY extra-packages /
-ENV host_spawn_version="1.2.1" \ LANG=en_US.UTF-8 \ LANGUAGE=en_US:en \ LC_ALL=en_US.UTF-8
+ENV host_spawn_version="1.2.1" \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8
+
 RUN sed -Ei '/apt-get (update|upgrade)/s/^/#/' /usr/local/sbin/unminimize && \
     apt update && \
-    yes | /usr/local/sbin/unminimize && \
-# RUN apt update && \
-#     apt upgrade -y && \
-    DEBIAN_FRONTEND=noninteractive apt -y install \
+    yes | /usr/local/sbin/unminimize
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
         ubuntu-minimal ubuntu-standard \
         libnss-myhostname \
         wget gpg && \
-    sed 's/# \(en_US.UTF-8 .*\)/\1/' -i /etc/locale.gen && \
+    DEBIAN_FRONTEND=noninteractive apt-get clean
+
+COPY extra-packages /tmp/
+RUN sed 's/# \(en_US.UTF-8 .*\)/\1/' -i /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
-    DEBIAN_FRONTEND=noninteractive apt -y install \
-        $(grep -v '^#' /extra-packages | xargs) && \
-    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install \
+        $(grep -v '^#' /tmp/extra-packages | xargs) && \
+    DEBIAN_FRONTEND=noninteractive apt-get clean && \
+    rm /tmp/extra-packages
+
+RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && \
     install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
-    sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list' && \
+    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list && \
     rm -f packages.microsoft.gpg && \
-    wget https://github.com/sigstore/cosign/releases/download/v2.0.0/cosign_2.0.0_amd64.deb -O /root/cosign.deb && \
-    dpkg -i /root/cosign.deb && \
-    rm -f /root/cosign.deb && \
-    DEBIAN_FRONTEND=noninteractive apt -y remove gpg && \
-    DEBIAN_FRONTEND=noninteractive apt -y install apt-transport-https && \
-    apt update && \
-    DEBIAN_FRONTEND=noninteractive apt install -y code && \
-    curl -sS https://starship.rs/install.sh | sh -s -- -f && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y remove gpg && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install apt-transport-https && \
+    DEBIAN_FRONTEND=noninteractive apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y code && \
+    DEBIAN_FRONTEND=noninteractive apt-get clean
+
+RUN wget https://github.com/sigstore/cosign/releases/download/v2.0.0/cosign_2.0.0_amd64.deb -O /tmp/cosign.deb && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install /tmp/cosign.deb && \
+    rm -f /tmp/cosign.deb && \
+    DEBIAN_FRONTEND=noninteractive apt-get clean
+
+RUN curl -sS https://starship.rs/install.sh | sh -s -- -f && \
     curl -L "https://github.com/1player/host-spawn/releases/download/${host_spawn_version}/host-spawn-$(uname -m)" -o /usr/bin/host-spawn && \
     chmod +x /usr/bin/host-spawn
-ENV fastfetch_version="1.11.0"
-RUN curl -fsL "https://github.com/LinusDierheimer/fastfetch/releases/download/${fastfetch_version}/fastfetch-${fastfetch_version}-Linux.deb" -o /fastfetch.deb && \
-    dpkg -i /fastfetch.deb && \
-    rm -f /fastfetch.deb
+
 ENV glocom_version="6.7.2"
-RUN curl -fsL "https://downloads.bicomsystems.com/desktop/glocom/public/${glocom_version}/glocom/gloCOM-${glocom_version}.deb" -o /glocom.deb && \
-    dpkg -i /glocom.deb && \
-    rm -f /glocom.deb
+RUN curl -fsL "https://downloads.bicomsystems.com/desktop/glocom/public/${glocom_version}/glocom/gloCOM-${glocom_version}.deb" -o /tmp/glocom.deb && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install /tmp/glocom.deb && \
+    rm -f /tmp/glocom.deb && \
+    DEBIAN_FRONTEND=noninteractive apt-get clean
+
+ENV go_version="1.20.3"
+RUN curl -fsL "https://go.dev/dl/go${go_version}.linux-amd64.tar.gz" -o /tmp/go.tar.gz && \
+    tar -C /usr/local -xzf /tmp/go.tar.gz && \
+    rm /tmp/go.tar.gz && \
+    echo "export PATH=\$PATH:/usr/local/go/bin" >> /etc/profile
+
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    DEBIAN_FRONTEND=noninteractive apt install -y nodejs
-RUN DEBIAN_FRONTEND=noninteractive apt-get clean && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install nodejs && \
+    DEBIAN_FRONTEND=noninteractive apt-get clean
+
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys D6BC243565B2087BC3F897C9277A7293F59E4889 && \
+    echo "deb http://miktex.org/download/ubuntu jammy universe" > /etc/apt/sources.list.d/miktex.list && \
+    DEBIAN_FRONTEND=noninteractive apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install miktex && \
+    miktexsetup --shared=yes finish && \
+    initexmf --admin --set-config-value [MPM]AutoInstall=1
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y upgrade && \
+    DEBIAN_FRONTEND=noninteractive apt-get clean && \
     rm -rd /var/lib/apt/lists/*
-RUN rm /extra-packages
 
 # Fix empty bind-mount to clear selinuxfs (see #337)
 # RUN mkdir /usr/share/empty

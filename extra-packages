@@ -9,12 +9,16 @@ glances
 gnupg2
 keyutils
 # libpulse for gloCOM
-libpulse-mainloop-glib0
+# libpulse-mainloop-glib0
+neofetch
 pcscd
+pdftk-java
 python3
 # QtWayland for gloCOM
-qtwayland5
+# qtwayland5
 ripgrep
+screenkey
+texlive-latex-recommended
 tree
 unzip
 vim
