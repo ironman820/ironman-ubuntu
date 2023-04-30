@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/ironman820/ironman-ubuntu/compare/v1.3.0...v1.4.0) (2023-04-30)
+
+
+### Features
+
+* :sparkles: Setup Bicom SCWizard ([62608c6](https://github.com/ironman820/ironman-ubuntu/commit/62608c6871f5d58babb85e230759de4319ede957))
+
 ## [1.3.0](https://github.com/ironman820/ironman-ubuntu/compare/v1.2.0...v1.3.0) (2023-04-27)
 
 
