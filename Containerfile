@@ -1,10 +1,12 @@
-ARG UBUNTU_MAINVERSION=22.04
+ARG UBUNTU_MAJOR_VERSION="${UBUNTU_MAJOR_VERSION:-22}"
+ARG UBUNTU_MINOR_VERSION="${UBUNTU_MINOR_VERSION:-04}"
+ARG UBUNTU_MAINVERSION="${UBUNTU_MAJOR_VERSION}.${UBUNTU_MINOR_VERSION}"
 
 FROM quay.io/toolbx-images/ubuntu-toolbox:${UBUNTU_MAINVERSION}
 
 LABEL com.github.containers.toolbox="true" \
       name="ubuntu-toolbox" \
-      version="22.04" \
+      version="${UBUNTU_MAINVERSION}" \
       usage="This image is meant to be used with the toolbox command" \
       summary="Base image for creating Ubuntu toolbox containers" \
       maintainer="Ievgen Popovych <jmennius@gmail.com>"
@@ -41,16 +43,6 @@ RUN sed 's/# \(en_US.UTF-8 .*\)/\1/' -i /etc/locale.gen && \
     DEBIAN_FRONTEND=noninteractive apt-get clean && \
     rm /tmp/extra-packages
 
-RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && \
-    install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
-    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list && \
-    rm -f packages.microsoft.gpg && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y remove gpg && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install apt-transport-https && \
-    DEBIAN_FRONTEND=noninteractive apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y code && \
-    DEBIAN_FRONTEND=noninteractive apt-get clean
-
 RUN wget https://github.com/sigstore/cosign/releases/download/v2.0.0/cosign_2.0.0_amd64.deb -O /tmp/cosign.deb && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install /tmp/cosign.deb && \
     rm -f /tmp/cosign.deb && \
@@ -60,28 +52,9 @@ RUN curl -sS https://starship.rs/install.sh | sh -s -- -f && \
     curl -L "https://github.com/1player/host-spawn/releases/download/${host_spawn_version}/host-spawn-$(uname -m)" -o /usr/bin/host-spawn && \
     chmod +x /usr/bin/host-spawn
 
-ENV glocom_version="6.7.2"
-RUN curl -fsL "https://downloads.bicomsystems.com/desktop/glocom/public/${glocom_version}/glocom/gloCOM-${glocom_version}.deb" -o /tmp/glocom.deb && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install /tmp/glocom.deb && \
-    rm -f /tmp/glocom.deb && \
-    DEBIAN_FRONTEND=noninteractive apt-get clean
-
-ENV go_version="1.20.3"
-RUN curl -fsL "https://go.dev/dl/go${go_version}.linux-amd64.tar.gz" -o /tmp/go.tar.gz && \
-    tar -C /usr/local -xzf /tmp/go.tar.gz && \
-    rm /tmp/go.tar.gz && \
-    echo "export PATH=\$PATH:/usr/local/go/bin" >> /etc/profile
-
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install nodejs && \
-    DEBIAN_FRONTEND=noninteractive apt-get clean
-
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys D6BC243565B2087BC3F897C9277A7293F59E4889 && \
-    echo "deb http://miktex.org/download/ubuntu jammy universe" > /etc/apt/sources.list.d/miktex.list && \
-    DEBIAN_FRONTEND=noninteractive apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install miktex && \
-    miktexsetup --shared=yes finish && \
-    initexmf --admin --set-config-value [MPM]AutoInstall=1
+ADD build.sh /tmp/build.sh
+RUN /tmp/build.sh && \
+    rm -f /tmp/build.sh
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y upgrade && \

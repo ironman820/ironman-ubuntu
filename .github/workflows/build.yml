@@ -31,11 +31,15 @@ jobs:
       fail-fast: false
       matrix:
         image_name: [ubuntu]
-        major_version: [22]
-        minor_version: [04]
+        major_version: [18, 22]
+        minor_version: ['04']
         include:
+          - major_version: 18
+            minor_version: '04'
+            is_latest_version: false
+            is_stable_version: false
           - major_version: 22
-            minor_version: 04
+            minor_version: '04'
             is_latest_version: true
             is_stable_version: true
     steps:
@@ -68,7 +72,7 @@ jobs:
           fi
 
           if [[ "${{ github.ref_name }}" == "devel" ]]; then
-            BUILD_TAGS=("devel")
+            BUILD_TAGS=("devel-${MAJOR_VERSION}.${MINOR_VERSION}")
           else
             BUILD_TAGS=("${MAJOR_VERSION}.${MINOR_VERSION}")
 
@@ -118,6 +122,8 @@ jobs:
             ${{ steps.generate-tags.outputs.alias_tags }}
           build-args: |
             IMAGE_NAME=${{ matrix.image_name }}
+            UBUNTU_MAJOR_VERSION=${{ matrix.major_version }}
+            UBUNTU_MINOR_VERSION=${{ matrix.minor_version }}
           labels: ${{ steps.meta.outputs.labels }}
           oci: false
 
