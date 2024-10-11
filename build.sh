@@ -5,7 +5,7 @@ set -ouex pipefail
 RELEASE="$(grep 'RELEASE' /etc/lsb-release | awk -F= '{print $2}')"
 
 if [[ "$RELEASE" = "22.04" ]]; then
-    GLOCOM_VERSION="6.7.2"
+    GLOCOM_VERSION="7.3.0.1"
     curl -fsL "https://downloads.bicomsystems.com/desktop/glocom/public/${GLOCOM_VERSION}/glocom/gloCOM-${GLOCOM_VERSION}.deb" \
         -o /tmp/glocom.deb && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install qtwayland5 \
